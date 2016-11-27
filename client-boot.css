@@ -1,0 +1,9 @@
+    .jumbotron-welcome {
+        background-image: url('./images/track.jpg');
+        background-size: cover;
+        color: white;
+    }
+	
+	.italic {
+  font-style: italic;
+}

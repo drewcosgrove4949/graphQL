@@ -1,0 +1,153 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Client</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,
+        initial-scale=1, shrink-to-fit=no"> 
+        <meta http-equiv="x-ua-compatible" content="ie=edge"> 
+		<link rel="stylesheet" href="bootstrap.min.css"> 
+		<link rel="stylesheet" href="client-boot.css"> 
+			
+    </head>
+    <body>
+	
+	    <div class="container">
+            <div class="jumbotron jumbotron-welcome col-xs-offset-1">
+                <h1>Tracker</h1>
+                <p>POC</p>
+            </div>
+        </div>
+	
+	<form name="myForm">
+	<p class="col-xs-offset-1">	
+		<input name="button1" type="button" value="2000" class="btn btn-default btn-lg"
+		 onclick="refreshServerInfo('2000','1')">
+	
+		<input name="button2" type="button" value="2001" class="btn btn-default btn-lg"
+		 onclick="refreshServerInfo('2001','1')">
+
+		<input name="button3" type="button" value="RABBIT" class="btn btn-default btn-lg"
+		 onclick="refreshServerInfo('RABBIT','2')">
+	
+		<input name="button4" type="button" value="HAT" class="btn btn-default btn-lg"
+		 onclick="refreshServerInfo('HAT','2')">
+	</p>
+	</form>
+	
+	<div class="serverInfo col-xs-offset-1">
+		<p> <strong> Consignment Number: </strong> <span data-replace="consignmentNumber"></span> </P>
+		<p> <strong> Customer Reference: </strong> <span data-replace="customerReference"></span>  </P>
+		<p> <strong> Delivery Due Date: </strong> <span data-replace="deliveryDueDate"></span>  </P>
+		<p> <strong> Collection Date: </strong> <span data-replace="collectionDate"></span>  </P>
+		<p> <strong> Destination Country: </strong> <span data-replace="destinationCountry"></span>  </P>
+		<p> <strong> Delivery Due Date: </strong> <span data-replace="deliveryDueDate"></span>  </P>
+		<p> <strong> Quantity of pieces: </strong> <span data-replace="pieceQuantity"></span>  </P>
+		<p> <strong> Status Data: </strong> </P>
+		</div>
+	
+	<div class="statusData col-xs-offset-1 dfn italic">
+
+	</div>
+		
+	<script>
+	
+		function refreshServerInfo(conID,flagValue) {
+		
+		conID = conID.toString();
+		console.log("form value is " + conID);
+		console.log(typeof(conID));
+
+		conID = conID.toString();
+		console.log("flag value is " + flagValue);
+		console.log(typeof(flagValue));
+		
+			const req = new XMLHttpRequest();
+			req.addEventListener('load', function() {
+			// this.responseText is a string containing JSON; we use
+			// JSON.parse to convert it to an object
+			const data = JSON.parse(this.responseText);
+
+			console.log (JSON.stringify(data));
+			console.log ("Object.keys = " + Object.keys(data));
+			
+			var consignmentx = data.data.consignment;
+			console.log ("consignmentX = " + JSON.stringify(consignmentx));
+			console.log ("TYPEOF consignmentX = " + typeof(consignmentx));		
+
+			for (var i = 0; i < consignmentx.length; i++) {
+			var value = consignmentx[i];
+			console.log(value);
+			var keys = Object.keys(value);
+			console.log("keys = " + keys);
+			console.log(value.consignmentNumber);
+			}
+			
+			// In this example, we only want to replace text within the <div>
+			// that has class "serverInfo"
+			const serverInfo = document.querySelector('.serverInfo');
+
+			// Iterate over the keys in the object returned from the server:
+			Object.keys(value).forEach(p => {
+				// Find elements to replace for this property (if any)
+				const replacements =
+					serverInfo.querySelectorAll(`[data-replace="${p}"]`);
+					console.log ("replacemets = " + JSON.stringify(replacements));
+					console.log ("P = " + p);
+					
+				// replace all elements with the value returned from the server
+				for(let r of replacements) {
+					r.textContent = value[p];
+					console.log ("R = " + JSON.stringify(r));
+					if ( p !== "statusData") {
+					console.log ("data[p] = " + value[p])}
+					else {
+					console.log ("data[p] = " + JSON.stringify(value[p]))}
+					}
+			});
+				
+			var consignmentX = data.data.consignment;
+			console.log ("consignmentX = " + JSON.stringify(consignmentX));
+			console.log ("TYPEOF consignmentX = " + typeof(consignmentX));	
+			var consignmentY = consignmentX[0].statusData;
+			console.log ("consignmentY = " + JSON.stringify(consignmentY));
+			console.log ("TYPEOF consignmentY = " + typeof(consignmentY));		
+
+			const statusData = document.querySelector('.statusData');
+			statusData.innerHTML = "";
+
+			for (var i = 0; i < consignmentY.length; i++) {
+
+			var value = consignmentY[i];
+			console.log(value);
+		
+			var keys = Object.keys(value);
+			console.log("keys = " + keys);
+			
+			for (var q = 0; q < keys.length; q++) {
+			var newContent = document.createTextNode(keys[q] + ": " + value[keys[q]]); 
+			console.log("new content = " + JSON.stringify(newContent));
+			statusData.appendChild(newContent);
+			var br = document.createElement("br");
+			statusData.appendChild(br);
+			};
+			var br = document.createElement("br");
+			statusData.appendChild(br);
+			};
+		
+		});
+
+		req.open('POST', 'https://izoluv73hb.execute-api.eu-west-1.amazonaws.com/prod/graphql', true);
+		req.send(JSON.stringify({"query":"{consignment(id:\"" + conID + "\",flag:\"" + flagValue + "\"){consignmentNumber,customerReference,deliveryDueDate,collectionDate,destinationCountry,deliveryDueDate,pieceQuantity,statusData{statusCode,severity,depot,localEventDate,localEventTime,statusDescription}}}"}));	
+		
+		};
+	
+	</script>
+
+   </body>
+	
+</html>
+
+
+
+
